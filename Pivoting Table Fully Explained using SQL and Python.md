@@ -40,7 +40,7 @@ A long table is an unprocessed, original dataset, so it is the best candidate fo
 
 
 ### Wide Table
-A wide table is used for disseminating information because the data is usually processed in a way that can increase people's knowledge of something. Also, the wide table is a particular form of dataframe containing one column by one dimension and indexed by another dimension in the date column. For example, there are two typical wide tables:
+A wide table is used for disseminating information because the data is usually processed in a way that can increase people's knowledge of something. Also, the wide table is a particular form of dataframe containing one column by one dimension and indexed by another dimension in the column. For example, there are two typical wide tables:
 
 `Scores`
 | product_id  | English | Math | Physics |
