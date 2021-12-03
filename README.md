@@ -1,4 +1,4 @@
-# Summary of SQL
+# Introduction to the Repository
 
 The repository is mainly used to record my experience of SQL coding and practical summary based on Leetcode.
 
