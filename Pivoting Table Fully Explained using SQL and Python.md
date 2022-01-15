@@ -104,7 +104,7 @@ group by product_id
 ```
 
 Are we done? Absolutely not, we must use the aggregation function after we group by the dataset; otherwise, it only returns one record. And it does not matter what kinds of `aggregate function` we use, we can either write `max` or `min`.
-```
+```Mysql
 select
   product_id,
   max(case when store="store1" then price else null end) as `store1`,
@@ -133,7 +133,7 @@ Here is the syntax for pivotting long to wide format.
 - `margins` specifies whether we want to add the subtotal.
 
 Now let's pivot the products table to a wide format using this function
-```
+```Python
 pd.pivot(Products,"product_id","store","price")
 ```
 [Output]
@@ -153,8 +153,7 @@ Write an SQL query to rearrange the Products table so that each row has (product
 In MySQL, the job is rather boring. We only need to use `union` to concatenate all possible store tables. I directly show how it works:
 
 Based on the wide table above, first, we filter out the product price of products sold in store1 and name it as `price`, and we create `store` as a new field.
-```
-
+```Mysql
 select
     product_id,
     "store1" as a store,
@@ -164,8 +163,7 @@ where store1 is not null
 ```
 
 Then we write all possible situations and concatenate them
-```
-
+```Mysql
 select
     product_id,
     "store1" as a store,
@@ -201,7 +199,7 @@ Python has a built-in function, `pd.melt()`, to convert a wide format table to a
 - `ignore_index` specifies whether we ignore the original index. Default is `True`
 
 Now Let's unpivot the dataframe
-```
+```Python
 melted_df = pd.melt(Products,id_vars=["product_id"],
                     value_vars=["store1","store2","store3"],
                     var_name="store",value_name="price",
@@ -209,7 +207,7 @@ melted_df = pd.melt(Products,id_vars=["product_id"],
 ```
 
 Then we filter out any null values
-```
+```Python
 melted_df = pd.melt(Products,id_vars=["product_id"],
                     value_vars=["store1","store2","store3"],
                     var_name="store",value_name="price",
@@ -272,7 +270,7 @@ Then, we can group the dataset by the rank column and use the exactly the same w
 To get a rank field, we can either use a window function or variables.
 
 *Window Function*
-```
+```Mysql
 select
   *,
   row_number() over (partition by continent order by name asc) as "rank"
@@ -280,7 +278,7 @@ from student
 ```
 
 *We can also define variables to add rank field*
-```
+```Mysql
 select
   *,
   case when @cont=continent then @rk:=@rk+1
@@ -302,7 +300,7 @@ Either way, we can have the following table:
 Now the left job is just to reproduce the code I have written in the demonstration part.
 
 `window function version`
-```
+```Mysql
 # build one temp table to store the table containing rank
 with temp as (
 select
@@ -319,7 +317,7 @@ group by rank
 ```
 
 `variable version`
-```
+```Mysql
 with temp as (select
                 *,
                 case when @continent=continent then @rk:=@rk+1 else @rk:=1 end as rk,
@@ -347,19 +345,19 @@ Student = pd.DataFrame({"name":["Jack","Pascal","Xi","Jane"],
 ```
 
 Now we copy the dataframe to avoid any manipulation affecting the original dataset
-```
+```Python
 student = Student.copy()
 ```
 
 Then, we also need to create one column used to group the data. Here's one powerful function `rank`
-```
+```Python
 # set ascending=True to ensure that we order name alphabetically
 student["rank"] = student["name"].groupby(student["continent"]).\
 rank(method="first",ascending=True) 
 ```
 
 Next, we call `pd.pivot_table` to perform pivoting.
-```
+```Python
 result = student.pivot_table(
     index="rank",
     columns="continent",
@@ -375,7 +373,7 @@ result = student.pivot_table(
 |2.0|Jane|||
 
 Tweak the result a little bit
-```
+```Python
 res = result.reset_index().drop("rank",axis=1)
 res.columns.names = ""
 res
@@ -417,7 +415,7 @@ You are the business owner and would like to obtain a sales report for category 
 **Solution**
 The result table requires us to display the sales indexed by each category of items per day of a week. So this is a typical question of pivoting a long table to a wide table. So
 - First Step: Group by the data by category**
-```
+```Mysql
 select
   xx
 from orders o 
@@ -427,7 +425,7 @@ group by i.item_category
 order by category
 ```
 - *Second Step: Basd on the joined table, write a control flow to automatically calculate the sum of quantity for each category*
-```
+```Mysql
 select 
         i.item_category category,
         sum(if(weekday(o.order_date)=0,o.quantity,0)) 'Monday',
