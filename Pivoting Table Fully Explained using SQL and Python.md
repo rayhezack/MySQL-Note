@@ -93,7 +93,7 @@ group by product_id
 ```
 
 Then, based on the code chunk above, we need to write control flow to create new fields for store1, store2, and store3. Here I use `case when` as the demonstration:
-```
+```Mysql
 select
   product_id,
   case when store="store1" then price else null end as `store1`,
