@@ -214,7 +214,7 @@ order by month asc;
 ```
 
 Now, I also write a python code to solve this question. The solution is exactly the same as what I have done in MySQL.
-``Python
+```Python
 # create a table storing the 12 months of a year
 months = [mon for mon in range(1,13)]    
 Months = pd.DataFrame({"Month":months})
