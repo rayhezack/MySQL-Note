@@ -101,7 +101,7 @@ Let's analyze the question step by step. We need to compute two things:
 ### Activer Drivers
 *Step 1:Based on the analysis above, we first need to create one field containing full months of one year*. 
 Here we can use recursive cte:
-```
+```Mysql
 with RECURSIVE cte(mon) as (
     select 1
     union
@@ -127,7 +127,7 @@ The detailed step is:
 - Combine all columns of `cte` table and `Drivers` table to compute the cumulative sum of acive drivers.
 
 *Filter out records of 2021*
-```
+```Mysql
 select
   *
 from drivers 
@@ -135,7 +135,7 @@ where year(join_date)<="2020"
 ```
 
 *group the dataset by month and compute the number of active drivers*
-```
+```Mysql
 select
     if(year(join_date)<2020,1,month(join_date)) join_month,
     count(*) as driver_num
@@ -144,7 +144,7 @@ where year(join_date)<="2020"
 group by if(year(join_date)<2020,1,month(join_date))
 ```
 *Combine all columns of `cte` table and `Drivers` table*
-```
+```Mysql
 with RECURSIVE cte(mon) as (
     select 1
     union
@@ -167,7 +167,7 @@ left join (select
 
 ### Accepted Rides
 To compute the number of accepted rides, we can directly combine all columns of the `Rides` table and `AcceptedRides` table on the condition of the same ride id. In this case, as long as the ride is accepted, each row of accepted rides table will be matched with the row of `Rides` table. So we can compute the number of accepted rides for each month based on `requested_at` column.
-```
+```Mysql
 select
     month(r.requested_at) as request_month,
     count(a.ride_id) as accepted_rides
@@ -180,7 +180,7 @@ group by month(r.requested_at)
 
 ### Combine active drivers and accepted rides
 We have completed the two numbers the question asked. **But the `request_month` column in the accepted rides result does not include records of full months of a year.** So we need to join the two tables on the condition of the same month to query the `month` field in cte table. So we can compute the accepted rides for each month, and those unmatched records will be automatically considered as null by SQL. So we need to use `ifnull()` to convert null into 0.
-```
+```Mysql
 with recursive cte(n) as (
     select 1
     union
@@ -214,7 +214,7 @@ order by month asc;
 ```
 
 Now, I also write a python code to solve this question. The solution is exactly the same as what I have done in MySQL.
-```
+``Python
 # create a table storing the 12 months of a year
 months = [mon for mon in range(1,13)]    
 Months = pd.DataFrame({"Month":months})
