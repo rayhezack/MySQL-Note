@@ -10,6 +10,7 @@ For example, our boss requires us to find out active users that log in to our ga
 |1|2021-07-03|
 |1|2021-07-04|
 |1|2021-07-05|
+
 Assume that (user_id,date) is the primary key. We can call such kind of user an active user.
 
 The solution to this type of question can be summarized as follows:
@@ -34,6 +35,7 @@ Let's look at one problem from Leetcode: Please find numbers that appear at leas
 | 5  | 1   |
 | 6  | 2   |
 | 7  | 2   |
+
 Id is the primary key of this table. Write an SQL query to find all numbers that appear at least three times consecutively. Return the result table in any order.
 
 **Solution1: Variables**
@@ -41,13 +43,13 @@ Let me explain how to solve this question using variables. Remember that our obj
 - First define variable `@num:=0,@cnt` where `:=` is assignment and `@` is a variable keyword immediately followed by variable_name. So `@num:=0` means that we assign 0 to the variable `@num`
   - `@num` is used to record which number we are checking. It needs to be assigned to a value of new record each time the SQL select a new record. For example, when SQL moves from the first row to the second row, @id should be assigned to 1 in the second row. 
   - `@cnt` is used to record the frequency that a number appears. For example, for the first three rows, we can find that Num has records 1, 1, and 1. So `@cnt` should be 1,2,3. 
-```
+```Mysql
 SELECT
   *
 FROM Logs,(select @num:=0,@cnt:=0) t
 ```
 In this sql, `select @num:=0,@cnt:=0` is the syntax of defining variables. We have created two variables, num and cnt. Then we need to figure out the logic: @cnt can increase by 1 only when @num equals a record of Num.
-```
+```Mysql
 SELECT
   *,
   case when @num=num then @cnt:=@cnt+1
@@ -66,7 +68,7 @@ FROM Logs,(select @num:=0,@cnt:=0) t
 |7|2|2|
 
 Then we create a temporary table and find out the number that appears three times consecutively through `tag` column.
-```
+```Mysql
 select
   distinct num ConsecutiveNums
 from (SELECT
@@ -86,7 +88,7 @@ where t1.tag>=3
 So the general idea of using window function is that we find out the value from the row that precedes the current row and the value from the row that succeeds the current row. If the value of the three columns is equal, suggesting that the value appears at least three times consecutively.
 
 - *First step: create two columns for the value of the previous row and succeeding row*
-```
+```Mysql
 select
   num,
   lag(num,1) over (order by id asc)  as preceding_num,
@@ -95,7 +97,7 @@ from logs
 ```
 
 - *Second Step: create a temporary table that stores the query result*
-```
+```Mysql
 with temp as (select num,
   lag(num,1) over (order by id asc)  as preceding_num,
   lead(num,1) over (order by id asc) as succeeding_num
@@ -103,7 +105,7 @@ from logs)
 ```
 
 - *Third Step: filter out values from the temp table by num=preceding_num and num=succeeding_num*
-```
+```Mysql
 with temp as (select num,
   lag(num,1) over (order by id asc)  as preceding_num,
   lead(num,1) over (order by id asc) as succeeding_num
@@ -136,6 +138,7 @@ and num = succeeding_num;
 | 7  | 2020-06-03 |
 | 1  | 2020-06-07 |
 | 7  | 2020-06-10 |
+
 No primary key in this table. (This suggests that there might be duplicated records. So we need to be cautious)
 
 
@@ -157,18 +160,19 @@ We can find that the login_date, for id 7, is consecutive. In this case, the sub
 | 7  | 2020-05-31 |1|2020-05-30|
 | 7  | 2020-06-01 |2|2020-05-30|
 | 7  | 2020-06-02 |3|2020-05-30|
+
 Then we can group the data by `id,Diff` and filter out any id with frequency(`count(*)`) greater than or equal 3.
 
 So the procedures of solving this question can be summarized as follows:
 - Create `row_number` to compute the difference between row_number and login_date
-```
+```Mysql
 select
   num,
   row_number() over (partition by id order by login_date asc)
 from logins
 ```
 - Substrat the `login_date` from `row_number` to create one tag that help determine which user consecutively log in. Here we need to use `date_sub(exp, interval x date_type)` function when working with datetime data.
-```
+```Mysql
 select
         *,
         date_sub(login_date,Interval row_number() over (partition by id order by login_date asc) DAY ) tag 
@@ -176,7 +180,7 @@ from (select distinct id,login_date from logins)
 ```
 
 - `Group` the table by `id,diff` to filter out active users
-```
+```Mysql
 select
     distinct t1.id,a.name
 from (select
@@ -207,12 +211,13 @@ Return the result table ordered by visit_date in ascending order. The query resu
 | 6    | 2017-01-06 | 1455      |
 | 7    | 2017-01-07 | 199       |
 | 8    | 2017-01-09 | 188       |
+
 visit_date is the primary key for this table.
 Each row of this table contains the visit date and visit id to the stadium with the number of people during the visit.
 No two rows will have the same visit_date, and as the id increases, the dates increase as well.
 
 Here's the solution.(You can refer)
-```
+```Mysql
 with temp as (select
                 *,
                 id - row_number() over (order by visit_date asc) as flag
