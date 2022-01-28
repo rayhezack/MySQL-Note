@@ -38,6 +38,7 @@ InnoDB存储引擎下的表格，MySQL会默认创建B-Tree index。下表显示
 **Example**
 举个具体的例子来解释索引的原理。如果我们有以下虚构的表格，ID为主键。
 `users`
+
 |ID | Name  |
 |-----------|------------|
 |100 | Jay |
@@ -47,6 +48,7 @@ InnoDB存储引擎下的表格，MySQL会默认创建B-Tree index。下表显示
 |101| Mary |
 |130| Patricia  |
 |55| Jennifer|
+
 因为ID为主键，所以MySQL会自动为其创建索引，并进行物理排序，如下图所示：
 ![B-TREE](https://upload-images.jianshu.io/upload_images/10429581-c02109c2fcbb5031.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 假设我们的查询语句为：
@@ -90,6 +92,7 @@ SHOW INDEXES FROM table_name
 
 **MySQL CREATE INDEX example**
 现有一张员工表`emp`记载了员工个人信，如下表所示：
+
 | EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
 |-------|--------|-----------|------|------------|---------|---------|--------|
 |  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800.00 |    NULL |     20 |
@@ -116,6 +119,7 @@ explain select * from emp where ename = 'KING';
 | id | select_type | table | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |
 |----|-------------|-------|------------|------|---------------|------|---------|------|------|----------|-------------|
 |  1 | SIMPLE      | emp   | NULL       | ALL  | NULL          | NULL | NULL    | NULL |   14 |    10.00 | Using where |
+
 从rows这一列中，我们可以看出，没有创建索引的情况下，MySQL扫描了整张表14行记录。
 
 *对ename列创建索引*
@@ -129,6 +133,7 @@ explain select * from emp where ename='KING';
 | id | select_type | table | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |
 |----|-------------|-------|------------|------|---------------|------|---------|------|------|----------|-------------|
 |  1 | SIMPLE      | emp   | NULL       | ref  | index_ename          | index_ename | 43    | const |   1 |    10.00 | NULL |
+
 创建索引后，MySQL只扫描了一行就找出了员工King的数据。
 
 
@@ -136,5 +141,3 @@ explain select * from emp where ename='KING';
 **Reference**
 - [tutorialspoint](https://www.tutorialspoint.com/mysql/mysql-indexes.htm)
 - [MySQL Server](https://dev.mysql.com/doc/refman/8.0/en/create-index.html)
-
-Welcome to Access My Github: [rayhezack](https://github.com/rayhezack)
