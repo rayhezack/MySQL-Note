@@ -51,6 +51,7 @@ InnoDB存储引擎下的表格，MySQL会默认创建B-Tree index。下表显示
 
 因为ID为主键，所以MySQL会自动为其创建索引，并进行物理排序，如下图所示：
 ![B-TREE](https://upload-images.jianshu.io/upload_images/10429581-c02109c2fcbb5031.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 假设我们的查询语句为：
 ```sql
 select * from users where id=130
